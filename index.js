@@ -23,7 +23,9 @@ async function run() {
     try {
 
         const usersCollecton = client.db('carvana').collection('users');
+        const volkswagenCollection = client.db('carvana').collection('volkswagen')
 
+        // save user to database
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -37,6 +39,15 @@ async function run() {
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
             res.send({result, token})
         })
+
+
+
+        // volkswagen car collection
+        app.get('/category/volkswagen', async(req, res)=>{
+            const result = await volkswagenCollection.find({}).toArray();
+            res.send(result)
+        })
+
         console.log('MongoDb Database connected');
 
     } finally {
