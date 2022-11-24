@@ -24,6 +24,7 @@ async function run() {
 
         const usersCollecton = client.db('carvana').collection('users');
         const volkswagenCollection = client.db('carvana').collection('volkswagen')
+        const buggattiCollection = client.db('carvana').collection('buggatti')
 
         // save user to database
         app.put('/user/:email', async (req, res) => {
@@ -45,6 +46,13 @@ async function run() {
         // volkswagen car collection
         app.get('/category/volkswagen', async(req, res)=>{
             const result = await volkswagenCollection.find({}).toArray();
+            res.send(result)
+        })
+
+
+        // buggati car collection
+        app.get('/category/buggatti', async(req, res)=>{
+            const result  = await buggattiCollection.find({}).toArray();
             res.send(result)
         })
 
