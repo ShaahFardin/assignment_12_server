@@ -25,6 +25,7 @@ async function run() {
         const usersCollecton = client.db('carvana').collection('users');
         const volkswagenCollection = client.db('carvana').collection('volkswagen')
         const buggattiCollection = client.db('carvana').collection('buggatti')
+        const bookingsCollection = client.db('carvana').collection('bookings')
 
         // save user to database
         app.put('/user/:email', async (req, res) => {
@@ -38,21 +39,27 @@ async function run() {
             const result = await usersCollecton.updateOne(filter, updatedDoc, options)
             console.log(result);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-            res.send({result, token})
+            res.send({ result, token })
         })
 
 
 
         // volkswagen car collection
-        app.get('/category/volkswagen', async(req, res)=>{
+        app.get('/category/volkswagen', async (req, res) => {
             const result = await volkswagenCollection.find({}).toArray();
             res.send(result)
         })
 
 
         // buggati car collection
-        app.get('/category/buggatti', async(req, res)=>{
-            const result  = await buggattiCollection.find({}).toArray();
+        app.get('/category/buggatti', async (req, res) => {
+            const result = await buggattiCollection.find({}).toArray();
+            res.send(result)
+        })
+
+        // save bookings to the database
+        app.post('/bookings', async (req, res) => {
+            const result = await bookingsCollection.insertOne(req.body)
             res.send(result)
         })
 
@@ -63,6 +70,7 @@ async function run() {
     }
 }
 run().catch(error => console.log(error))
+
 
 app.get('/', (req, res) => {
     res.send("Final project carvana server is running");
