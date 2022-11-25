@@ -85,6 +85,13 @@ async function run() {
             const result = await sellerAddedProductsCollection.insertOne(req.body);
             res.send(result)
         })
+        // get seller specific product
+        app.get('/myproduct', async(req, res)=>{
+            const email = req.query.email;
+            const query = {email: email};
+            const result = await sellerAddedProductsCollection.find(query).toArray();
+            res.send(result)
+        })
 
         // get user specific bookings
         app.get('/bookings', verifyJWT, async (req, res) => {
