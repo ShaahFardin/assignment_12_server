@@ -42,6 +42,7 @@ async function run() {
         const volkswagenCollection = client.db('carvana').collection('volkswagen')
         const buggattiCollection = client.db('carvana').collection('buggatti')
         const bookingsCollection = client.db('carvana').collection('bookings')
+        const sellerAddedProductsCollection = client.db('carvana').collection('sellerProduct')
 
         // save user to database
         app.put('/user/:email', async (req, res) => {
@@ -76,6 +77,12 @@ async function run() {
         // save bookings to the database
         app.post('/bookings', async (req, res) => {
             const result = await bookingsCollection.insertOne(req.body)
+            res.send(result)
+        })
+
+        // add a product from seller
+        app.post('/addproduct', async(req, res)=>{
+            const result = await sellerAddedProductsCollection.insertOne(req.body);
             res.send(result)
         })
 
