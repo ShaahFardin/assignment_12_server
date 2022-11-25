@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -91,6 +91,23 @@ async function run() {
             }
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings)
+        });
+
+
+
+        // get all users
+        app.get('/users', async(req, res)=>{
+            const users = await usersCollecton.find({}).toArray();
+            res.send(users)
+        })
+
+
+        // delete a user
+        app.delete('/users/:id', async(req, res)=>{
+            const id = req.params.id;
+            const filter = {_id:ObjectId(id)};
+            const result = await usersCollecton.deleteOne(filter)
+            res.send(result)
         })
 
         console.log('MongoDb Database connected');
