@@ -43,6 +43,7 @@ async function run() {
         const buggattiCollection = client.db('carvana').collection('buggatti')
         const bookingsCollection = client.db('carvana').collection('bookings')
         const sellerAddedProductsCollection = client.db('carvana').collection('sellerProduct')
+        const shownAddProductCollection = client.db('carvana').collection('advertisedProduct')
 
         // save user to database
         app.put('/user/:email', async (req, res) => {
@@ -90,6 +91,13 @@ async function run() {
             const email = req.query.email;
             const query = {email: email};
             const result = await sellerAddedProductsCollection.find(query).toArray();
+            res.send(result)
+        })
+
+        // show advertisement in homepage
+        app.post('/shownAddProductCollection', async(req, res)=>{
+    
+            const result = await shownAddProductCollection.insertOne(req.body);
             res.send(result)
         })
 
