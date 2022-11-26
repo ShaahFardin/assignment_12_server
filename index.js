@@ -35,7 +35,7 @@ function verifyJWT(req, res, next) {
     })
 }
 
-const verifyAdmin = async (req, res, next)=> {
+const verifyAdmin = async (req, res, next) => {
     const decodedEmail = req.decoded.email;
     const query = { email: decodedEmail };
     const user = await usersCollecton.findOne(query);
@@ -83,10 +83,16 @@ async function run() {
             res.send(result)
         })
         // get users specific car
-        app.get('/allcars', async (req, res) => {
+        app.get('/allcars', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
             const result = await allCarsCollection.find(query).toArray();
+            res.send(result)
+        })
+        app.delete('/allcars/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await allCarsCollection.deleteOne(filter)
             res.send(result)
         })
 
@@ -167,7 +173,7 @@ async function run() {
             res.send({ isAdmin: user?.role === "Admin" })
         })
         // check seller
-        app.get('/users/seller/:email',verifyJWT, async (req, res) => {
+        app.get('/users/seller/:email', verifyJWT, async (req, res) => {
             const email = req.params.email
             const query = { email: email };
             const user = await usersCollecton.findOne(query);
@@ -190,23 +196,25 @@ async function run() {
         })
 
 
+
+
         // verify user
-        app.put('/users/admin/:id',verifyJWT, async(req, res)=>{
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
 
             const decodedEmail = req.decoded.email;
-            const query = {email: decodedEmail};
+            const query = { email: decodedEmail };
             const user = await usersCollecton.findOne(query);
-            if(user?.role !== "Admin"){
+            if (user?.role !== "Admin") {
                 return res.status(403).send({
                     message: 'forbidden access'
                 })
             }
 
             const id = req.params.id;
-            const filter = { _id:ObjectId(id)};
-            const options = {upsert: true}
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true }
             const updatedDoc = {
-                $set:{
+                $set: {
                     verified: true
                 }
             }
