@@ -49,7 +49,7 @@ async function run() {
     try {
 
         const usersCollecton = client.db('carvana').collection('users');
-        const allCarsCollection = client.db('carvana').collection('allcars');
+        const allCarsCollection = client.db('carvana').collection('allCars');
         // const volkswagenCollection = client.db('carvana').collection('volkswagen')
         // const buggattiCollection = client.db('carvana').collection('buggatti')
         const bookingsCollection = client.db('carvana').collection('bookings')
@@ -89,7 +89,7 @@ async function run() {
             const result = await allCarsCollection.find(query).toArray();
             res.send(result)
         })
-        app.delete('/allcars/:id', async (req, res) => {
+        app.delete('/allcars/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const result = await allCarsCollection.deleteOne(filter)
