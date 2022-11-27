@@ -51,10 +51,7 @@ async function run() {
 
         const usersCollecton = client.db('carvana').collection('users');
         const allCarsCollection = client.db('carvana').collection('allCars');
-        // const volkswagenCollection = client.db('carvana').collection('volkswagen')
-        // const buggattiCollection = client.db('carvana').collection('buggatti')
         const bookingsCollection = client.db('carvana').collection('bookings')
-        // const sellerAddedProductsCollection = client.db('carvana').collection('sellerProduct')
         const shownAddProductCollection = client.db('carvana').collection('advertisedProduct')
         const paymentCollection = client.db('carvana').collection('payments')
 
@@ -116,11 +113,15 @@ async function run() {
             const result = await allCarsCollection.find(query).toArray();
             res.send(result)
         })
+
+
         // add a product under a category
         app.post('/allcars/:brandName', async (req, res) => {
             const result = allCarsCollection.insertOne(req.body);
             res.send(result)
-        })
+        });
+
+
         // get users specific car
         app.get('/allcars', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -128,6 +129,8 @@ async function run() {
             const result = await allCarsCollection.find(query).toArray();
             res.send(result)
         })
+
+
         app.delete('/allcars/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
@@ -145,37 +148,12 @@ async function run() {
         })
 
 
-        // // volkswagen car collection
-        // app.get('/category/volkswagen', async (req, res) => {
-        //     const result = await volkswagenCollection.find({}).toArray();
-        //     res.send(result)
-        // })
-
-
-        // // buggati car collection
-        // app.get('/category/buggatti', async (req, res) => {
-        //     const result = await buggattiCollection.find({}).toArray();
-        //     res.send(result)
-        // })
-
         // save bookings to the database
         app.post('/bookings', async (req, res) => {
             const result = await bookingsCollection.insertOne(req.body)
             res.send(result)
         })
 
-        // // add a product from seller
-        // app.post('/addproduct', async(req, res)=>{
-        //     const result = await sellerAddedProductsCollection.insertOne(req.body);
-        //     res.send(result)
-        // })
-        // get seller specific product
-        // app.get('/myproduct', async(req, res)=>{
-        //     const email = req.query.email;
-        //     const query = {email: email};
-        //     const result = await sellerAddedProductsCollection.find(query).toArray();
-        //     res.send(result)
-        // })
 
         // show advertisement in homepage
         app.post('/shownAddProductCollection', async (req, res) => {
@@ -211,7 +189,9 @@ async function run() {
         app.get('/users', verifyJWT, async (req, res) => {
             const users = await usersCollecton.find({}).toArray();
             res.send(users)
-        })
+        });
+
+
 
         // check if admin or not
         app.get('/users/admin/:email', verifyJWT, async (req, res) => {
@@ -220,6 +200,9 @@ async function run() {
             const user = await usersCollecton.findOne(query);
             res.send({ isAdmin: user?.role === "Admin" })
         })
+
+
+
         // check seller
         app.get('/users/seller/:email', verifyJWT, async (req, res) => {
             const email = req.params.email
