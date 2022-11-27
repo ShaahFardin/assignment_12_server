@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_SK)
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -55,6 +56,7 @@ async function run() {
         const bookingsCollection = client.db('carvana').collection('bookings')
         // const sellerAddedProductsCollection = client.db('carvana').collection('sellerProduct')
         const shownAddProductCollection = client.db('carvana').collection('advertisedProduct')
+        const paymentCollection = client.db('carvana').collection('payments')
 
         // save user to database
         app.put('/user/:email', async (req, res) => {
@@ -70,6 +72,43 @@ async function run() {
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
             res.send({ result, token })
         })
+
+
+        // Save payment info
+        app.post('/create-payment-intent', async (req, res) => {
+
+            const booking = req.body;
+            const price = booking.price;
+            const amount = price * 100;
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                "payment_method_types": [
+                    'card'
+                ]
+            })
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        })
+
+        // Save payments info to the database
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const result = await paymentCollection.insertOne(payment);
+            const id = payment.bookingId;
+            const filter = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const updatedResult = await bookingsCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+
 
         app.get('/allcars/:brandName', async (req, res) => {
             const brandName = req.params.brandName
@@ -93,6 +132,15 @@ async function run() {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const result = await allCarsCollection.deleteOne(filter)
+            res.send(result)
+        })
+
+
+        // specific id booking
+        app.get('/bookings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await bookingsCollection.findOne(query);
             res.send(result)
         })
 
